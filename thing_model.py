@@ -74,13 +74,20 @@ class ThingModel(models.Model):
             super(models.Model, self).__setattr__(name, value)
             return
 
+        # Handle special case for `data` field
         if name == 'data':
             self.__dict__['data'] = Thing(value)
             return
 
+        # Handle special case for `json_data` field
         if name == 'json_data':
             self.__dict__['data'] = Thing(value)
             self.__dict__['json_data'] = value
+            return
+
+        # Handle private and protected fields with default behaviour
+        if name.startswith('_'):
+            super(models.Model, self).__setattr__(name, value)
             return
 
         try:
@@ -90,4 +97,7 @@ class ThingModel(models.Model):
             super(models.Model, self).__setattr__(name, value)
         except AttributeError:
             # If it didn't existed, then set it inside our thing
-            setattr(self.data, name, value)
+            try:
+                setattr(self.data, name, value)
+            except ValueError as e:
+                raise ValueError("At attribute `%s`: %s" % (name, str(e)))
