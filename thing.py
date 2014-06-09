@@ -41,6 +41,9 @@ class Thing(object):
 
         return self.__data__[k]
 
+    def __iter__(self):
+        return iter(self.__data__)
+
     def get(self, k, default=None):
         if not isinstance(k, (str, unicode)):
             raise KeyError('Keys must be `str` or `unicode`')
